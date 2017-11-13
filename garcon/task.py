@@ -235,11 +235,16 @@ def fill_function_call(fn, requirements, activity, context):
     Return:
         dict: The arguments to call the method with.
     """
-
     function_arguments = fn.__code__.co_varnames[:fn.__code__.co_argcount]
     kwargs = dict()
 
-    for argument in function_arguments:
+    has_kwargs = True if fn.__code__.co_flags & 0x08 else False
+    if has_kwargs:
+        effective_arg_set = set(function_arguments).union(set(requirements))
+    else:
+        effective_arg_set = set(function_arguments)
+
+    for argument in effective_arg_set:
         param = requirements.get(argument, None)
         value = None
 
